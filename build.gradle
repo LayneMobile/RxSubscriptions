@@ -20,6 +20,8 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${rxsAndroidGradleVersion}"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${rxsBintrayGradlePlugin}"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:${rxsAndroidMavenGradleVersion}"
     }
 }
 
