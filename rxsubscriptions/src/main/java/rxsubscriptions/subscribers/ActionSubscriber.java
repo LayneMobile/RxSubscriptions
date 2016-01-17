@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package rxsubscriptions.subscribers;
 
 import rx.Subscriber;
@@ -26,6 +27,7 @@ import rx.functions.Action1;
  * @param <T>
  */
 public class ActionSubscriber<T> extends Subscriber<T> {
+
     private final Action1<? super T> onNext;
     private final Action1<Throwable> onError;
     private final Action0 onCompleted;
@@ -38,8 +40,7 @@ public class ActionSubscriber<T> extends Subscriber<T> {
         this(onNext, onError, null);
     }
 
-    public ActionSubscriber(Action1<? super T> onNext, Action1<Throwable> onError,
-            Action0 onCompleted) {
+    public ActionSubscriber(Action1<? super T> onNext, Action1<Throwable> onError, Action0 onCompleted) {
         this.onNext = onNext;
         this.onError = onError;
         this.onCompleted = onCompleted;

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rxsubscriptions.subscribers;
 
-import android.util.Log;
+package rxsubscriptions.subscribers;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -45,13 +44,11 @@ public final class WeakSubscriber<T> extends Subscriber<T> {
         return create(new ActionSubscriber<T>(onNext));
     }
 
-    public static <T> WeakSubscriber<T> create(Action1<? super T> onNext,
-            Action1<Throwable> onError) {
+    public static <T> WeakSubscriber<T> create(Action1<? super T> onNext, Action1<Throwable> onError) {
         return create(new ActionSubscriber<T>(onNext, onError));
     }
 
-    public static <T> WeakSubscriber<T> create(Action1<? super T> onNext,
-            Action1<Throwable> onError,
+    public static <T> WeakSubscriber<T> create(Action1<? super T> onNext, Action1<Throwable> onError,
             Action0 onCompleted) {
         return create(new ActionSubscriber<T>(onNext, onError, onCompleted));
     }
@@ -94,7 +91,6 @@ public final class WeakSubscriber<T> extends Subscriber<T> {
 
         @Override public void unsubscribe() {
             if (UNSUBSCRIBED_UPDATER.compareAndSet(this, 0, 1)) {
-                Log.v("WeakSubscriber", "unsubscribed");
                 parent.actual.unsubscribe();
                 parent.actual = null;
             }
