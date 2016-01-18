@@ -14,31 +14,81 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven-publish'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
-publishing {
-    repositories {
-        maven {
-            // For now publish with local url
-            url "${rootDir}/build/.m2"
+version = VERSION_NAME
+group = GROUP
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name POM_DESCRIPTION
+                url SITE_URL
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'laynepenney'
+                        name 'Layne Penney'
+                        email 'layne@laynemobile.com'
+                    }
+                }
+                scm {
+                    connection GIT_URL
+                    developerConnection GIT_URL
+                    url SITE_URL
+                }
+            }
         }
     }
+}
 
-    publications {
-        maven(MavenPublication) {
-            artifact "${project.buildDir}/outputs/aar/${project.name}-release.aar"
-            groupId project.ext.groupId
-            artifactId project.ext.artifactId
-            version project.ext.version
-            pom.withXml {
-                Node deps = asNode().appendNode('dependencies')
-                project.configurations.compile.dependencies.each { Dependency dep ->
-                    Node node = deps.appendNode("dependency")
-                    node.appendNode('groupId', dep.group)
-                    node.appendNode('artifactId', dep.name)
-                    node.appendNode('version', dep.version)
-                    node.appendNode('scope', 'compile')
-                }
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    encoding = 'UTF-8'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_APIKEY')
+
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = POM_NAME
+        userOrg = 'laynemobile'
+        desc = POM_DESCRIPTION
+        websiteUrl = SITE_URL
+        vcsUrl = GIT_URL
+        licenses = ["Apache-2.0"]
+        publish = true
+        version {
+            gpg {
+                sign = true
+                passphrase = System.getenv('BINTRAY_PASSWORD')
             }
         }
     }
