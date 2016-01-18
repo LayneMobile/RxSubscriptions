@@ -25,6 +25,10 @@ buildscript {
     }
 }
 
+ext {
+    LICENSES = ["Apache-2.0"]
+}
+
 allprojects {
     repositories {
         jcenter()
