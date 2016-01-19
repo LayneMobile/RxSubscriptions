@@ -20,12 +20,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
-import rxsubscriptions.lifecycle.LifecycleProducer;
-import rxsubscriptions.lifecycle.LifecycleSubscriptions;
+import rxsubscriptions.ActivityLifecycleProducer;
+import rxsubscriptions.RxSubscriptions;
 
 public class RxsFragmentActivity extends FragmentActivity {
-    private final LifecycleProducer producer = LifecycleProducer.create();
-    private final LifecycleSubscriptions subscriptions;
+    private final ActivityLifecycleProducer producer = ActivityLifecycleProducer.create();
+    private final RxSubscriptions subscriptions;
 
     public RxsFragmentActivity() {
         this.subscriptions = createSubscriptions();
@@ -34,11 +34,11 @@ public class RxsFragmentActivity extends FragmentActivity {
         }
     }
 
-    protected LifecycleSubscriptions createSubscriptions() {
-        return LifecycleSubscriptions.observeActivity();
+    protected RxSubscriptions createSubscriptions() {
+        return RxSubscriptions.observeActivity();
     }
 
-    @NonNull public LifecycleSubscriptions subscriptions() {
+    @NonNull public RxSubscriptions subscriptions() {
         return subscriptions;
     }
 

@@ -14,30 +14,38 @@
  * limitations under the License.
  */
 
-package rxsubscriptions.lifecycle;
+package rxsubscriptions;
 
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.observers.Subscribers;
+import rxsubscriptions.internal.Util;
 import rxsubscriptions.subscribers.ActionSubscriber;
 import rxsubscriptions.subscribers.WeakSubscriber;
 
 public final class SubscriptionBuilder<T> {
-    private final LifecycleSubscriptions subscriptions;
-    private final Observable<T> observable;
+    private final RxSubscriptions subscriptions;
+    private final Object o;
     private Scheduler subscribeOn;
-    private LifecycleEvent observeUntil;
+    private int observeUntil = -1;
     private Scheduler observeOn;
 
-    SubscriptionBuilder(LifecycleSubscriptions subscriptions, Observable<T> observable) {
+    SubscriptionBuilder(RxSubscriptions subscriptions, Observable<T> observable) {
         this.subscriptions = subscriptions;
-        this.observable = observable;
+        this.o = observable;
+    }
+
+    SubscriptionBuilder(RxSubscriptions subscriptions, Single<T> single) {
+        this.subscriptions = subscriptions;
+        this.o = single;
     }
 
     public SubscriptionBuilder<T> subscribeOn(Scheduler subscribeOn) {
@@ -45,7 +53,7 @@ public final class SubscriptionBuilder<T> {
         return this;
     }
 
-    public SubscriptionBuilder<T> observeUntil(LifecycleEvent event) {
+    public SubscriptionBuilder<T> observeUntil(int event) {
         this.observeUntil = event;
         return this;
     }
@@ -76,28 +84,54 @@ public final class SubscriptionBuilder<T> {
         return subscribe(Subscribers.from(observer));
     }
 
+    public Subscription subscribe(SingleSubscriber<? super T> subscriber) {
+        return subscribe(Util.asSubscriber(subscriber));
+    }
+
     public Subscription subscribe(Subscriber<? super T> subscriber) {
         // ObserveUntil
-        LifecycleEvent observeUntil = this.observeUntil;
-        if (observeUntil == null) {
+        int observeUntil = this.observeUntil;
+        if (observeUntil == -1) {
             observeUntil = subscriptions.observeUntil();
         }
+        // Actual subscribe
+        return subscriptions.subscribe(configureSubscribe(), observeUntil, WeakSubscriber.create(subscriber));
+    }
 
+    @SuppressWarnings("unchecked")
+    private Object configureSubscribe() {
+        Object o = this.o;
+        if (o instanceof Observable) {
+            return configureSubscribe((Observable<T>) o);
+        } else if (o instanceof Single) {
+            return configureSubscribe((Single<T>) o);
+        }
+        return o;
+    }
+
+    private Observable<T> configureSubscribe(Observable<T> observable) {
         // SubscribeOn
         Scheduler subscribeOn = this.subscribeOn;
-        Observable<T> observable = subscribeOn == null
-                ? this.observable
-                : this.observable.subscribeOn(subscribeOn);
-
+        observable = subscribeOn == null
+                ? observable
+                : observable.subscribeOn(subscribeOn);
         // ObserveOn
         Scheduler observeOn = this.observeOn;
-        observable = observeOn == null
+        return observeOn == null
                 ? observable
                 : observable.observeOn(observeOn);
+    }
 
-        // Actual subscribe
-        return subscriptions.subscribe           (observable,
-                observeUntil,
-                WeakSubscriber.create(subscriber));
+    private Single<T> configureSubscribe(Single<T> single) {
+        // SubscribeOn
+        Scheduler subscribeOn = this.subscribeOn;
+        single = subscribeOn == null
+                ? single
+                : single.subscribeOn(subscribeOn);
+        // ObserveOn
+        Scheduler observeOn = this.observeOn;
+        return observeOn == null
+                ? single
+                : single.observeOn(observeOn);
     }
 }

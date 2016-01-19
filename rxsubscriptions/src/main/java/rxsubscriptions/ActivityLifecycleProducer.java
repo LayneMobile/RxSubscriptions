@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:${appAndroidGradleVersion}"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${appBintrayGradlePlugin}"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:${appAndroidMavenGradleVersion}"
-    }
-}
+package rxsubscriptions;
 
-ext {
-    LICENSES = ["Apache-2.0"]
-}
 
-allprojects {
-    repositories {
-        jcenter()
+public final class ActivityLifecycleProducer extends LifecycleProducer {
+    private ActivityLifecycleProducer() {}
+
+    public static ActivityLifecycleProducer create() {
+        return new ActivityLifecycleProducer();
     }
-}
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    @Override final void onAttach() {
+        super.onAttach();
+    }
+
+    @Override final void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override final void onDetach() {
+        super.onDetach();
+    }
+
+    @Override final void onViewCreated() {
+        super.onViewCreated();
+    }
 }

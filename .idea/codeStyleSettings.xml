@@ -77,7 +77,6 @@
         </XML>
         <codeStyleSettings language="JAVA">
           <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
-          <option name="ALIGN_MULTILINE_METHOD_BRACKETS" value="true" />
           <option name="SPACE_WITHIN_BRACES" value="true" />
           <option name="CALL_PARAMETERS_WRAP" value="1" />
           <option name="METHOD_PARAMETERS_WRAP" value="1" />
@@ -265,6 +264,5 @@
       </value>
     </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
-    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Layne" />
   </component>
 </project>

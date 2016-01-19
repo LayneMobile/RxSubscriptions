@@ -17,12 +17,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rxsCompileSdkVersion as int
-    buildToolsVersion rxsBuildToolsVersion
+    compileSdkVersion appCompileSdkVersion as int
+    buildToolsVersion appBuildToolsVersion
 
     defaultConfig {
-        minSdkVersion rxsMinSdkVersion as int
-        targetSdkVersion rxsTargetSdkVersion as int
+        minSdkVersion appMinSdkVersion as int
+        targetSdkVersion appTargetSdkVersion as int
         versionCode VERSION_CODE as int
         versionName VERSION_NAME
     }
@@ -35,13 +35,14 @@ android {
 }
 
 dependencies {
-    compile "io.reactivex:rxandroid:${rxsRxAndroidVersion}"
-    compile "io.reactivex:rxjava:${rxsRxJavaVersion}"
+    compile "io.reactivex:rxandroid:${appRxAndroidVersion}"
+    compile "io.reactivex:rxjava:${appRxJavaVersion}"
+    compile "com.android.support:support-annotations:${appAndroidSupportVersion}"
 
     // testing
-    testCompile "junit:junit:${rxsJunitVersion}"
-    testCompile "org.mockito:mockito-core:${rxsMockitoVersion}"
-    testCompile "org.robolectric:robolectric:${rxsRoboelectricVersion}"
+    testCompile "junit:junit:${appJunitVersion}"
+    testCompile "org.mockito:mockito-core:${appMockitoVersion}"
+    testCompile "org.robolectric:robolectric:${appRoboelectricVersion}"
 }
 
 apply from: 'https://raw.github.com/LayneMobile/gradle-publish/master/artifacts.gradle'

@@ -20,11 +20,13 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import rx.Observer;
 import rx.Producer;
+import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.observers.Subscribers;
+import rxsubscriptions.internal.Util;
 
 /**
  * Helper class that removes its reference to a subscriber after unsubscribe is called.
@@ -55,6 +57,10 @@ public final class WeakSubscriber<T> extends Subscriber<T> {
 
     public static <T> WeakSubscriber<T> create(Observer<? super T> actual) {
         return create(Subscribers.from(actual));
+    }
+
+    public static <T> WeakSubscriber<T> create(SingleSubscriber<? super T> actual) {
+        return create(Util.asSubscriber(actual));
     }
 
     public static <T> WeakSubscriber<T> create(Subscriber<? super T> actual) {

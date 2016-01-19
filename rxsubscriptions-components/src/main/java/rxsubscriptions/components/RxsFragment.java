@@ -22,12 +22,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import rxsubscriptions.lifecycle.LifecycleProducer;
-import rxsubscriptions.lifecycle.LifecycleSubscriptions;
+import rxsubscriptions.FragmentLifecycleProducer;
+import rxsubscriptions.RxSubscriptions;
 
 public class RxsFragment extends Fragment {
-    private final LifecycleProducer producer = LifecycleProducer.create();
-    private final LifecycleSubscriptions subscriptions;
+    private final FragmentLifecycleProducer producer = FragmentLifecycleProducer.create();
+    private final RxSubscriptions subscriptions;
 
     public RxsFragment() {
         this.subscriptions = createSubscriptions();
@@ -36,11 +36,11 @@ public class RxsFragment extends Fragment {
         }
     }
 
-    protected LifecycleSubscriptions createSubscriptions() {
-        return LifecycleSubscriptions.observeFragment();
+    protected RxSubscriptions createSubscriptions() {
+        return RxSubscriptions.observeFragment();
     }
 
-    @NonNull public LifecycleSubscriptions subscriptions() {
+    @NonNull public RxSubscriptions subscriptions() {
         return subscriptions;
     }
 

@@ -9,7 +9,6 @@
 # Others
 build
 local.properties
-bintray.properties
 .DS_Store
 
 # unignore some .idea stuff

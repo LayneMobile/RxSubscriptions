@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package rxsubscriptions.lifecycle;
+package rxsubscriptions;
 
-/**
- * Lifecycle events that can be emitted by Activities or Fragments.
- */
-public enum LifecycleEvent {
-    ATTACH,
-    CREATE,
-    CREATE_VIEW,
-    START,
-    RESUME,
-    PAUSE,
-    STOP,
-    DESTROY_VIEW,
-    DESTROY,
-    DETACH
+
+public final class FragmentLifecycleProducer extends LifecycleProducer {
+    private FragmentLifecycleProducer() {}
+
+    public static FragmentLifecycleProducer create() {
+        return new FragmentLifecycleProducer();
+    }
+
+    @Override public final void onAttach() {
+        super.onAttach();
+    }
+
+    @Override public final void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override public final void onDetach() {
+        super.onDetach();
+    }
+
+    @Override public final void onViewCreated() {
+        super.onViewCreated();
+    }
 }

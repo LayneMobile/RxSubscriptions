@@ -17,6 +17,8 @@
 package rxsubscriptions.internal;
 
 import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -38,5 +40,49 @@ public final class Util {
         // observable completes before the composite is unsubscribed
         subscriber.add(sub);
         return sub;
+    }
+
+    public static <T> Subscription subscribeWithComposite(Single<T> single, Subscriber<? super T> subscriber,
+            CompositeSubscription cs) {
+        final Subscription actual = single.subscribe(subscriber);
+        final Subscription sub = attachToComposite(actual, cs);
+        // NOTE: We have to do this in order to remove the subscription from the list if the
+        // observable completes before the composite is unsubscribed
+        subscriber.add(sub);
+        return sub;
+    }
+
+    public static <T> Subscription subscribeWithComposite(Single<T> single, SingleSubscriber<? super T> subscriber,
+            CompositeSubscription cs) {
+        final Subscription actual = single.subscribe(subscriber);
+        final Subscription sub = attachToComposite(actual, cs);
+        // NOTE: We have to do this in order to remove the subscription from the list if the
+        // observable completes before the composite is unsubscribed
+        subscriber.add(sub);
+        return sub;
+    }
+
+    public static <T> Subscriber<T> asSubscriber(SingleSubscriber<T> singleSubscriber) {
+        Subscriber<T> subscriber = new SingleSubscriberWrapper<>(singleSubscriber);
+        singleSubscriber.add(subscriber);
+        return subscriber;
+    }
+
+    private static final class SingleSubscriberWrapper<T> extends Subscriber<T> {
+        private final SingleSubscriber<T> singleSubscriber;
+
+        private SingleSubscriberWrapper(SingleSubscriber<T> singleSubscriber) {
+            this.singleSubscriber = singleSubscriber;
+        }
+
+        @Override public void onCompleted() {}
+
+        @Override public void onError(Throwable e) {
+            singleSubscriber.onError(e);
+        }
+
+        @Override public void onNext(T t) {
+            singleSubscriber.onSuccess(t);
+        }
     }
 }

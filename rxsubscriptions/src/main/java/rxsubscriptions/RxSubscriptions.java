@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package rxsubscriptions.lifecycle;
+package rxsubscriptions;
 
 import android.util.Log;
 
@@ -22,17 +22,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
+import rx.Single;
 import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 import rxsubscriptions.internal.Util;
 import rxsubscriptions.subscribers.WeakSubscriber;
 
-public final class LifecycleSubscriptions {
-    private static final String TAG = LifecycleSubscriptions.class.getSimpleName();
+public final class RxSubscriptions {
+    private static final String TAG = RxSubscriptions.class.getSimpleName();
 
     private final AtomicReference<LifecycleProducer> producer = new AtomicReference<LifecycleProducer>();
     private final LifecycleObservationCalculator observationCalculator;
@@ -40,24 +38,24 @@ public final class LifecycleSubscriptions {
     // We never recycle the current node, so create one initially instead of from the pool here
     private SubscriptionNode current = new SubscriptionNode();
 
-    private LifecycleSubscriptions(LifecycleObservationCalculator observationCalculator) {
+    private RxSubscriptions(LifecycleObservationCalculator observationCalculator) {
         this.observationCalculator = observationCalculator;
     }
 
-    public static LifecycleSubscriptions observeActivity() {
-        return new LifecycleSubscriptions(LifecycleObservationCalculator.ACTIVITY);
+    public static RxSubscriptions observeActivity() {
+        return new RxSubscriptions(LifecycleObservationCalculator.ACTIVITY);
     }
 
-    public static LifecycleSubscriptions observeFragment() {
-        return new LifecycleSubscriptions(LifecycleObservationCalculator.FRAGMENT);
+    public static RxSubscriptions observeFragment() {
+        return new RxSubscriptions(LifecycleObservationCalculator.FRAGMENT);
     }
 
-    public static LifecycleSubscriptions observeUntilStop() {
-        return new LifecycleSubscriptions(LifecycleObservationCalculator.UNTIL_STOP);
+    public static RxSubscriptions observeUntilStop() {
+        return new RxSubscriptions(LifecycleObservationCalculator.UNTIL_STOP);
     }
 
-    public static LifecycleSubscriptions observe(LifecycleObservationCalculator bindingCalculator) {
-        return new LifecycleSubscriptions(bindingCalculator);
+    public static RxSubscriptions observe(LifecycleObservationCalculator bindingCalculator) {
+        return new RxSubscriptions(bindingCalculator);
     }
 
     public boolean setProducer(LifecycleProducer producer) {
@@ -68,7 +66,7 @@ public final class LifecycleSubscriptions {
         return false;
     }
 
-    public Observable<LifecycleEvent> lifecycleObservable() {
+    public Observable<Integer> lifecycleObservable() {
         LifecycleProducer producer = this.producer.get();
         if (producer == null) {
             throw new IllegalStateException(
@@ -77,42 +75,20 @@ public final class LifecycleSubscriptions {
         return producer.asObservable();
     }
 
-    public <T> Subscription subscribe(Observable<T> observable, Action1<? super T> onNext) {
-        return with(observable)
-                .subscribe(onNext);
-    }
-
-    public <T> Subscription subscribe(Observable<T> observable, Action1<? super T> onNext, Action1<Throwable> onError) {
-        return with(observable)
-                .subscribe(onNext, onError);
-    }
-
-    public <T> Subscription subscribe(Observable<T> observable, Action1<? super T> onNext, Action1<Throwable> onError,
-            Action0 onCompleted) {
-        return with(observable)
-                .subscribe(onNext, onError, onCompleted);
-    }
-
-    public <T> Subscription subscribe(Observable<T> observable, Observer<? super T> observer) {
-        return with(observable)
-                .subscribe(observer);
-    }
-
-    public <T> Subscription subscribe(Observable<T> observable, Subscriber<? super T> subscriber) {
-        return with(observable)
-                .subscribe(subscriber);
-    }
-
     public <T> SubscriptionBuilder<T> with(Observable<T> observable) {
         return new SubscriptionBuilder<T>(this, observable);
     }
 
-    public LifecycleEvent observeUntil() {
-        LifecycleEvent current = this.current.event;
+    public <T> SubscriptionBuilder<T> with(Single<T> single) {
+        return new SubscriptionBuilder<T>(this, single);
+    }
+
+    public int observeUntil() {
+        int current = this.current.event;
         return observationCalculator.observeUntil(current);
     }
 
-    <T> Subscription subscribe(Observable<T> observable, LifecycleEvent observeUntil,
+    @SuppressWarnings("unchecked") <T> Subscription subscribe(Object o, int observeUntil,
             WeakSubscriber<? super T> subscriber) {
         assertThread();
         // First verify that event has not already passed
@@ -123,7 +99,12 @@ public final class LifecycleSubscriptions {
         }
         // Subscribe and add to composite
         final CompositeSubscription cs = current.insertAndPopulate(observeUntil).cs;
-        return Util.subscribeWithComposite(observable, subscriber, cs);
+        if (o instanceof Observable) {
+            return Util.subscribeWithComposite((Observable<T>) o, subscriber, cs);
+        } else if (o instanceof Single) {
+            return Util.subscribeWithComposite((Single<T>) o, subscriber, cs);
+        }
+        return Subscriptions.unsubscribed();
     }
 
     private void assertThread() {
@@ -132,31 +113,31 @@ public final class LifecycleSubscriptions {
         }
     }
 
-    private boolean canSubscribe(LifecycleEvent event) {
+    private boolean canSubscribe(int event) {
         return current.ordinal() < ordinal(event);
     }
 
-    private static int ordinal(LifecycleEvent event) {
-        if (event != null) {
-            return event.ordinal();
+    private static int ordinal(int event) {
+        if (event >= Lifecycle.OnAttach && event <= Lifecycle.OnDetach) {
+            return event;
         }
         return -1;
     }
 
-    private final class LifecycleObserver implements Observer<LifecycleEvent> {
+    private final class LifecycleObserver implements Observer<Integer> {
         @Override public void onCompleted() {
             // should never be called
             assertThread();
-            current = current.drain(LifecycleEvent.DETACH);
+            current = current.drain(Lifecycle.OnDetach);
         }
 
         @Override public void onError(Throwable throwable) {
             // should never be called
             assertThread();
-            current = current.drain(LifecycleEvent.DETACH);
+            current = current.drain(Lifecycle.OnDetach);
         }
 
-        @Override public void onNext(LifecycleEvent lifecycleEvent) {
+        @Override public void onNext(Integer lifecycleEvent) {
             assertThread();
             current = current.drain(lifecycleEvent);
         }
@@ -170,14 +151,14 @@ public final class LifecycleSubscriptions {
 
         SubscriptionNode prev;
         SubscriptionNode next;
-        LifecycleEvent event;
+        int event;
         CompositeSubscription cs;
 
         int ordinal() {
-            return LifecycleSubscriptions.ordinal(event);
+            return RxSubscriptions.ordinal(event);
         }
 
-        SubscriptionNode insertAndPopulate(LifecycleEvent event) {
+        SubscriptionNode insertAndPopulate(int event) {
             SubscriptionNode node = insert(event);
             if (node.cs == null) {
                 node.cs = new CompositeSubscription();
@@ -185,8 +166,8 @@ public final class LifecycleSubscriptions {
             return node;
         }
 
-        SubscriptionNode insert(LifecycleEvent event) {
-            final int ordinal = LifecycleSubscriptions.ordinal(event);
+        SubscriptionNode insert(int event) {
+            final int ordinal = RxSubscriptions.ordinal(event);
             if (ordinal == ordinal()) {
                 return this;
             } else if (ordinal < ordinal()) {
@@ -234,7 +215,7 @@ public final class LifecycleSubscriptions {
             }
         }
 
-        SubscriptionNode drain(LifecycleEvent event) {
+        SubscriptionNode drain(int event) {
             SubscriptionNode current = insert(event);
             SubscriptionNode head = findHead(current);
             while (head != current) {
@@ -268,7 +249,7 @@ public final class LifecycleSubscriptions {
         private void recycle() {
             next = null;
             prev = null;
-            event = null;
+            event = -1;
             unsubscribe();
 
             synchronized (sPoolSync) {
