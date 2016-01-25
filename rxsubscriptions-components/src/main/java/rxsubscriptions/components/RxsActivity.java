@@ -23,7 +23,7 @@ import android.support.annotation.NonNull;
 import rxsubscriptions.ActivityLifecycleProducer;
 import rxsubscriptions.RxSubscriptions;
 
-public class RxsActivity extends Activity {
+public abstract class RxsActivity extends Activity {
     private final ActivityLifecycleProducer producer = ActivityLifecycleProducer.create();
     private final RxSubscriptions subscriptions;
 

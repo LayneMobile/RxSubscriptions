@@ -23,7 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import rxsubscriptions.ActivityLifecycleProducer;
 import rxsubscriptions.RxSubscriptions;
 
-public class RxsFragmentActivity extends FragmentActivity {
+public abstract class RxsFragmentActivity extends FragmentActivity {
     private final ActivityLifecycleProducer producer = ActivityLifecycleProducer.create();
     private final RxSubscriptions subscriptions;
 

@@ -23,7 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import rxsubscriptions.ActivityLifecycleProducer;
 import rxsubscriptions.RxSubscriptions;
 
-public class RxsAppCompatActivity extends AppCompatActivity {
+public abstract class RxsAppCompatActivity extends AppCompatActivity {
     private final ActivityLifecycleProducer producer = ActivityLifecycleProducer.create();
     private final RxSubscriptions subscriptions;
 
