@@ -12,7 +12,7 @@ android:
 sudo: false
 
 # script for build and release via Travis to Bintray
-script: ./gradle/buildViaTravis.sh
+script: gradle/buildViaTravis.sh
 
 notifications:
   email: false
