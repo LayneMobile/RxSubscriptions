@@ -29,7 +29,7 @@ import rx.subscriptions.Subscriptions;
 import rxsubscriptions.internal.Util;
 import rxsubscriptions.subscribers.WeakSubscriber;
 
-public final class RxSubscriptions {
+public class RxSubscriptions {
     private static final String TAG = RxSubscriptions.class.getSimpleName();
 
     private final AtomicReference<LifecycleProducer> producer = new AtomicReference<LifecycleProducer>();
@@ -38,7 +38,7 @@ public final class RxSubscriptions {
     // We never recycle the current node, so create one initially instead of from the pool here
     private SubscriptionNode current = new SubscriptionNode();
 
-    private RxSubscriptions(LifecycleObservationCalculator observationCalculator) {
+    protected RxSubscriptions(LifecycleObservationCalculator observationCalculator) {
         this.observationCalculator = observationCalculator;
     }
 
@@ -58,7 +58,7 @@ public final class RxSubscriptions {
         return new RxSubscriptions(bindingCalculator);
     }
 
-    public boolean setProducer(LifecycleProducer producer) {
+    public final boolean setProducer(LifecycleProducer producer) {
         if (this.producer.compareAndSet(null, producer)) {
             producer.asObservable().subscribe(new LifecycleObserver());
             return true;
@@ -66,7 +66,7 @@ public final class RxSubscriptions {
         return false;
     }
 
-    public Observable<Integer> lifecycleObservable() {
+    public final Observable<Integer> lifecycleObservable() {
         LifecycleProducer producer = this.producer.get();
         if (producer == null) {
             throw new IllegalStateException(
@@ -83,7 +83,7 @@ public final class RxSubscriptions {
         return new SubscriptionBuilder<T>(this, single);
     }
 
-    public int observeUntil() {
+    public final int observeUntil() {
         int current = this.current.event;
         return observationCalculator.observeUntil(current);
     }

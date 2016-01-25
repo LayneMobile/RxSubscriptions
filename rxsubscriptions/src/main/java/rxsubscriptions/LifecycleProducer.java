@@ -20,7 +20,7 @@ package rxsubscriptions;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
-abstract class LifecycleProducer {
+public abstract class LifecycleProducer {
     private final BehaviorSubject<Integer> subject = BehaviorSubject.create();
 
     LifecycleProducer() {}
