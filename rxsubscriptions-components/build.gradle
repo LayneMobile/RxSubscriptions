@@ -46,4 +46,4 @@ dependencies {
     testCompile "org.robolectric:robolectric:${appRoboelectricVersion}"
 }
 
-apply from: 'https://raw.github.com/LayneMobile/gradle-publish/master/artifacts.gradle'
+apply from: 'https://raw.github.com/LayneMobile/gradle-publish/master/android-artifacts.gradle'
