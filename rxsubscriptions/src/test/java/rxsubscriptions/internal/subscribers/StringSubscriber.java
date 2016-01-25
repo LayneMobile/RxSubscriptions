@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.laynemobile.rxsubscriptions;
+package rxsubscriptions.internal.subscribers;
 
-import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import rx.Subscriber;
 
-/**
- * To work on unit tests, switch the Test Artifact in the Build Variants view.
- */
-public class ExampleUnitTest {
-    @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+public class StringSubscriber extends Subscriber<String> {
+    public StringSubscriber() {
+        super();
+    }
+
+    @Override public void onCompleted() {
+
+    }
+
+    @Override public void onError(Throwable e) {
+
+    }
+
+    @Override public void onNext(String s) {
+
     }
 }
