@@ -5,8 +5,9 @@ jdk:
 
 android:
   components:
+    - tools
+    - build-tools-23.0.2
     - android-23
-    - build-tools-23.0.1
     - extra-android-m2repository
 
 # as per http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
